@@ -29,5 +29,10 @@
       } {
         imports = [packagesModule systemsModule module];
       };
+
+    templates.default = {
+      description = "A minimal flake that uses nix-foundations";
+      path = ./templates/default;
+    };
   };
 }

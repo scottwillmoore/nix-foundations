@@ -1,37 +1,33 @@
 {
   inputs = {
-    nix-packages.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixos-packages.url = "github:nixos/nixpkgs/nixos-23.05";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nix-packages.url = "github:nixos/nixpkgs/nixos-unstable";
+    nix-systems.url = "github:nix-systems/default";
   };
 
   outputs = {
+    flake-parts,
     nix-packages,
-    nixos-packages,
+    nix-systems,
     ...
   }: let
-    inherit (nix-packages.lib) genAttrs;
+    packagesModule = {
+      perSystem = {system, ...}: {
+        _module.args.packages = import nix-packages {
+          inherit system;
+        };
+      };
+    };
 
-    systems = [
-      "aarch64-darwin"
-      "aarch64-linux"
-      "x86_64-darwin"
-      "x86_64-linux"
-    ];
-
-    forAllSystems = f: genAttrs systems (system: f system);
+    systemsModule = {
+      systems = import nix-systems;
+    };
   in {
-    inherit systems;
-
-    nixPackages = forAllSystems (system:
-      import nix-packages {
-        inherit system;
-        config.allowUnfree = true;
-      });
-
-    nixosPackages = forAllSystems (system:
-      import nixos-packages {
-        inherit system;
-        config.allowUnfree = true;
-      });
+    lib.mkFlake = inputs: module:
+      flake-parts.lib.mkFlake {
+        inherit inputs;
+      } {
+        imports = [packagesModule systemsModule module];
+      };
   };
 }

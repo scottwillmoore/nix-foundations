@@ -4,7 +4,7 @@
   };
 
   outputs = inputs @ {nix-foundations, ...}:
-    nix-foundations.lib.mkFlake inputs ({inputs, ...}: {
+    nix-foundations.mkFlake inputs ({inputs, ...}: {
       perSystem = {packages, ...}: {
         devShells.default = packages.mkShellNoCC {
           packages = [

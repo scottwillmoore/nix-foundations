@@ -1,0 +1,17 @@
+{
+	"nix.enableLanguageServer": true,
+	"nix.serverPath": "nil",
+	"nix.serverSettings": {
+		"nil": {
+			"formatting": {
+				"command": ["alejandra", "--quiet", "--quiet"]
+			},
+			"nix": {
+				"flake": {
+					"autoEvalInputs": true,
+					"nixpkgsInputName": "nix-packages"
+				}
+			}
+		}
+	}
+}

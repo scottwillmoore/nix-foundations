@@ -5,7 +5,7 @@
     nix-systems.url = "github:nix-systems/default";
   };
 
-  outputs = {
+  outputs = inputs @ {
     flake-parts,
     nix-packages,
     nix-systems,
@@ -22,17 +22,31 @@
     systemsModule = {
       systems = import nix-systems;
     };
-  in {
-    lib.mkFlake = inputs: module:
+
+    mkFlake = inputs: module:
       flake-parts.lib.mkFlake {
         inherit inputs;
       } {
         imports = [packagesModule systemsModule module];
       };
+  in
+    mkFlake inputs {
+      flake = {
+        inherit mkFlake;
 
-    templates.default = {
-      description = "A minimal flake that uses nix-foundations";
-      path = ./templates/default;
+        templates.default = {
+          description = "A minimal flake that uses nix-foundations";
+          path = ./templates/default;
+        };
+      };
+
+      perSystem = {packages, ...}: {
+        devShells.default = packages.mkShellNoCC {
+          packages = [
+            packages.alejandra
+            packages.nil
+          ];
+        };
+      };
     };
-  };
 }
